@@ -8,6 +8,7 @@ class App:
         self.product=Products()
         self.filePath="test.yaml"
         self.data = []
+        self.order= 0
     def create_window(self):
         # Create the window
         self.window = tk.Tk()#Main widget
@@ -27,6 +28,19 @@ class App:
         self.text_field.pack(side=tk.TOP)
         update_button = tk.Button(self.window, text="Search", command=self.search)
         update_button.pack()
+
+        button_frame = tk.Frame(self.window)
+        button_frame.pack()
+
+        button1 = tk.Button(button_frame, text="Цена", command=lambda: self.sortResults("price"))
+        button1.pack(side=tk.LEFT)
+
+        button2 = tk.Button(button_frame, text="Кол-во продано", command=lambda: self.sortResults("sold"))
+        button2.pack(side=tk.LEFT)
+
+        button3 = tk.Button(button_frame, text="Рейтинг продавца", command=lambda: self.sortResults("rating"))
+        button3.pack(side=tk.LEFT)
+
         #Create list
         self.listBox= MyListbox(self.window,self.data)
         self.listBox.create_listbox()
@@ -40,7 +54,12 @@ class App:
     def search(self):
         self.product.ParsePage(self.text_field.get()) 
         self.product.write_yaml_file(self.filePath) 
-        self.update_window()  
+        self.update_window()
+    def sortResults(self,a):
+        self.order= not self.order
+        self.product.sortProducts(a,self.order) 
+        self.data = self.product.data
+        self.listBox.update_listbox(self.data)    
         
 class MyListbox:
     def __init__(self, master, items):
