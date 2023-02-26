@@ -18,7 +18,7 @@ def main():
     # product.ParsePage(query)
     #product.write_yaml_file('test.yaml')
     product.read_yaml_file('test.yaml')
-    my_window = App("My Application")
+    my_window = App("Plati.market Parser")
     my_window.create_window()
     #print(product.data)
 

@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font as tkFont
+
 from products import Products
 import webbrowser
 
@@ -20,28 +22,17 @@ class App:
         self.product.read_yaml_file(self.filePath)
         self.data=self.product.data
         # Add widgets to the window
-        label = tk.Label(self.window, text="Hello, World!")
+        label = tk.Label(self.window, text="Input what you like to find in the field below\nDue to parallel parsing using selenium it would take some time to load results")
         label.pack()
-         # Create the Update button and pack it
-        update_button = tk.Button(self.window, text="Update", command=self.update_window)
-        update_button.pack()
+        #  # Create the Update button and pack it
+        # update_button = tk.Button(self.window, text="Update", command=self.update_window)
+        # update_button.pack()
         
         self.text_field = tk.Entry(self.window)
         self.text_field.pack(side=tk.TOP)
         update_button = tk.Button(self.window, text="Search", command=self.search)
         update_button.pack()
 
-        button_frame = tk.Frame(self.window)
-        button_frame.pack()
-
-        button1 = tk.Button(button_frame, text="Цена", command=lambda: self.sortResults("price"))
-        button1.pack(side=tk.LEFT)
-
-        button2 = tk.Button(button_frame, text="Кол-во продано", command=lambda: self.sortResults("sold"))
-        button2.pack(side=tk.LEFT)
-
-        button3 = tk.Button(button_frame, text="Рейтинг продавца", command=lambda: self.sortResults("rating"))
-        button3.pack(side=tk.LEFT)
 
         #Create list
         self.table= MyListbox(self.window,self.data)
@@ -58,6 +49,7 @@ class App:
         self.product.write_yaml_file(self.filePath) 
         self.update_window()
     def sortResults(self,a):
+        """deprecated sorting is now performed inside treeview"""
         self.order= not self.order
         self.product.sortProducts(a,self.order) 
         self.data = self.product.data
@@ -68,27 +60,49 @@ class MyListbox:
         self.master = master
         self.items = items
         self.treeview = None
+        self.columns= ["name", "price", "rating", "sold"]
+        self.sort_column = None
     
     def create_treeview(self):
         # Create the Treeview
         self.treeview = ttk.Treeview(self.master, columns=("name", "price", "rating", "sold"), show="headings", selectmode="browse")
         
-        # Define the column headings
-        self.treeview.heading("name", text="Name")
-        self.treeview.heading("price", text="Price")
-        self.treeview.heading("rating", text="Rating")
-        self.treeview.heading("sold", text="Sold")
+
+
+        for column in self.columns:
+            self.treeview.heading(column, text=column, anchor=tk.CENTER,command=lambda c=column: self.sort_by_column(c))
+            self.treeview.column(column, anchor=tk.CENTER)
+            
+       
         
         # Add items to the Treeview
         for item in self.items:
             self.treeview.insert("", tk.END, values=(item['name'], item['price'], item['rating'], item['sold']), tags=(item['link'],))
-        
+         # Automatically set the width of each column based on the length of the data in that column
+        for col in self.treeview["columns"]:
+            max_len = max([len(str(self.treeview.set(row, col))) for row in self.treeview.get_children()])
+            self.treeview.column(col, width=max_len * 10)
         # Bind a function to the double click event on a row to open the corresponding link
         self.treeview.bind("<Double-1>", self.open_link)
         
         # Pack the Treeview
         self.treeview.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-    
+    def sort_by_column(self, column):
+        # Determine the sort order
+        if self.sort_column == column:
+            self.sort_descending = not self.sort_descending
+        else:
+            self.sort_column = column
+            self.sort_descending = False
+
+        # Sort the data
+        self.items.sort(key=lambda x: x[self.sort_column], reverse=self.sort_descending)
+
+        # Update the Treeview display
+        self.treeview.delete(*self.treeview.get_children())
+        for item in self.items:
+            formatted_item = (item["name"], item["price"], item["rating"], item["sold"])
+            self.treeview.insert("", tk.END, values=formatted_item,tags=(item['link'],))
     def update_treeview(self, data):
         self.data = data
         # Delete the existing items in the Treeview
