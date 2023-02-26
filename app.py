@@ -1,5 +1,7 @@
 import tkinter as tk
+from tkinter import ttk
 from products import Products
+import webbrowser
 
 class App:
     def __init__(self, title):
@@ -42,15 +44,15 @@ class App:
         button3.pack(side=tk.LEFT)
 
         #Create list
-        self.listBox= MyListbox(self.window,self.data)
-        self.listBox.create_listbox()
+        self.table= MyListbox(self.window,self.data)
+        self.table.create_treeview()
         
         # Run the window
         self.window.mainloop()
     def update_window(self):
         self.product.read_yaml_file(self.filePath)
         self.data = self.product.data
-        self.listBox.update_listbox(self.data)
+        self.table.update_treeview(self.data)
     def search(self):
         self.product.ParsePage(self.text_field.get()) 
         self.product.write_yaml_file(self.filePath) 
@@ -59,30 +61,46 @@ class App:
         self.order= not self.order
         self.product.sortProducts(a,self.order) 
         self.data = self.product.data
-        self.listBox.update_listbox(self.data)    
+        self.table.update_treeview(self.data)    
         
 class MyListbox:
     def __init__(self, master, items):
         self.master = master
         self.items = items
-        self.listbox = None
+        self.treeview = None
     
-    def create_listbox(self):
-        # Create the listbox
-        self.listbox = tk.Listbox(self.master, width=50)
+    def create_treeview(self):
+        # Create the Treeview
+        self.treeview = ttk.Treeview(self.master, columns=("name", "price", "rating", "sold"), show="headings", selectmode="browse")
         
-        # Add items to the listbox
+        # Define the column headings
+        self.treeview.heading("name", text="Name")
+        self.treeview.heading("price", text="Price")
+        self.treeview.heading("rating", text="Rating")
+        self.treeview.heading("sold", text="Sold")
+        
+        # Add items to the Treeview
         for item in self.items:
-            formatted_item = f"{item['name']} - {item['price']} - {item['rating']}"
-            self.listbox.insert(tk.END, formatted_item)
+            self.treeview.insert("", tk.END, values=(item['name'], item['price'], item['rating'], item['sold']), tags=(item['link'],))
         
-        # Pack the listbox
-        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)        
-    def update_listbox(self,data):
-        self.data=data
-        # Delete the existing items in the Listbox
-        self.listbox.delete(0, tk.END) 
-        # Add the updated items to the Listbox
+        # Bind a function to the double click event on a row to open the corresponding link
+        self.treeview.bind("<Double-1>", self.open_link)
+        
+        # Pack the Treeview
+        self.treeview.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    
+    def update_treeview(self, data):
+        self.data = data
+        # Delete the existing items in the Treeview
+        self.treeview.delete(*self.treeview.get_children())
+        # Add the updated items to the Treeview
         for item in self.data:
-            formatted_item = f"{item['name']} - {item['price']} - {item['rating']}"
-            self.listbox.insert(tk.END, formatted_item)   
+            self.treeview.insert("", tk.END, values=(item['name'], item['price'], item['rating'], item['sold']), tags=(item['link'],))
+    
+    def open_link(self, event):
+        # Get the item selected in the Treeview
+        item = self.treeview.selection()[0]
+        # Get the link associated with the item
+        link = self.treeview.item(item, "tags")[0]
+        # Open the link in the default web browser
+        webbrowser.open(link)   
