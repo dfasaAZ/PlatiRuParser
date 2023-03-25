@@ -13,6 +13,7 @@ class App:
         self.filePath="test.yaml"
         self.data = []
         self.order= 0
+        self.table=None
        
     def create_window(self):
         # Create the window
@@ -35,15 +36,17 @@ class App:
         update_button.pack()
 
 
-        #Create list
-        self.table= MyListbox(self.window,self.data)
-        self.table.create_treeview()
+        
         
         # Run the window
         self.window.mainloop()
     def update_window(self):
         self.product.read_yaml_file(self.filePath)
         self.data = self.product.data
+        #Create list
+        if not self.table:
+            self.table= MyListbox(self.window,self.data)
+            self.table.create_treeview()
         self.table.update_treeview(self.data)
     def search(self):
         self.product.parseAPI(self.text_field.get()) 

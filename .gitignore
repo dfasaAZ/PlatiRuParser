@@ -2,3 +2,6 @@
 /msedgedriver.exe
 *.yaml
 /__pycache__
+/build
+/dist
+main.spec

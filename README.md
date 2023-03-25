@@ -16,3 +16,7 @@ This app was created because plati.market lacks sorting in search results
 in console:pip install -r requirements.txt
 
 then run: main.py
+
+OR
+
+download the latest executable from releases tab
