@@ -13,6 +13,7 @@ class App:
         self.filePath="test.yaml"
         self.data = []
         self.order= 0
+       
     def create_window(self):
         # Create the window
         self.window = tk.Tk()#Main widget
@@ -22,7 +23,7 @@ class App:
         self.product.read_yaml_file(self.filePath)
         self.data=self.product.data
         # Add widgets to the window
-        label = tk.Label(self.window, text="Input what you like to find in the field below\nDue to parallel parsing using selenium it would take some time to load results")
+        label = tk.Label(self.window, text="Input what you like to find in the field below\nDouble click on the result to open it in external browser")
         label.pack()
         #  # Create the Update button and pack it
         # update_button = tk.Button(self.window, text="Update", command=self.update_window)
@@ -45,11 +46,12 @@ class App:
         self.data = self.product.data
         self.table.update_treeview(self.data)
     def search(self):
-        self.product.ParsePage(self.text_field.get()) 
+        self.product.parseAPI(self.text_field.get()) 
         self.product.write_yaml_file(self.filePath) 
         self.update_window()
+        self.table.update_treeview(self.data) 
     def sortResults(self,a):
-        """deprecated sorting is now performed inside treeview"""
+        """deprecated, sorting is now performed inside treeview"""
         self.order= not self.order
         self.product.sortProducts(a,self.order) 
         self.data = self.product.data
@@ -73,7 +75,7 @@ class MyListbox:
             self.treeview.heading(column, text=column, anchor=tk.CENTER,command=lambda c=column: self.sort_by_column(c))
             self.treeview.column(column, anchor=tk.CENTER)
             
-       
+        
         
         # Add items to the Treeview
         for item in self.items:
@@ -104,11 +106,11 @@ class MyListbox:
             formatted_item = (item["name"], item["price"], item["rating"], item["sold"])
             self.treeview.insert("", tk.END, values=formatted_item,tags=(item['link'],))
     def update_treeview(self, data):
-        self.data = data
+        self.items = data
         # Delete the existing items in the Treeview
         self.treeview.delete(*self.treeview.get_children())
         # Add the updated items to the Treeview
-        for item in self.data:
+        for item in self.items:
             self.treeview.insert("", tk.END, values=(item['name'], item['price'], item['rating'], item['sold']), tags=(item['link'],))
     
     def open_link(self, event):

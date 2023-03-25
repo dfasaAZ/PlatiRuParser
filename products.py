@@ -6,7 +6,8 @@ from operator import itemgetter
 from urllib.parse import quote
 import yaml
 
-
+import requests
+import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
@@ -41,7 +42,9 @@ class Products:
                   '\n'+str(item['price'])+"  "+str(item['rating'])+"   "+str(item['sold'])+'\n\n')
 
     def ParsePage(self, query):
-        """Find all elements on page and store them into the dictionary"""
+        """Find all elements on page and store them into the dictionary
+        \n use parseAPI function instead if possible
+        """
         self.data=[]
         options = Options()
         options.add_argument("headless")# Показывать ли окно браузера
@@ -93,3 +96,19 @@ class Products:
                 browser.find_element(By.LINK_TEXT, str(pageNumber+1)).click()# Переход на следующую страницу
             except:
                 break
+    def parseAPI(self,query):
+        """Find all elements on page and store them into the dictionary using plati.ru API"""
+        self.data=[]
+        """pagesize should be less than 500"""
+        pagesize=499
+        contents=requests.get(f"https://plati.io/api/search.ashx?query={query}&pagesize={pagesize}&visibleOnly=true&response=json").json()
+        total_pages=int(contents['Totalpages'])
+        for entry in contents['items']:
+            self.data.append(
+                    {'name': entry['name'], 'link': entry['url'], 'price': int(entry['price_rur']),'rating':float(entry['seller_rating']),'sold':int(entry['numsold'])})
+        if (total_pages>1):  
+            for i in range(2,total_pages+1):
+                contents=requests.get(f"https://plati.io/api/search.ashx?query={query}&pagesize={pagesize}&pagenum={i}&visibleOnly=true&response=json").json()
+                for entry in contents['items']:
+                    self.data.append(
+                        {'name': entry['name'], 'link': entry['url'], 'price': int(entry['price_rur']),'rating':float(entry['seller_rating']),'sold':int(entry['numsold'])})
