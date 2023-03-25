@@ -18,9 +18,9 @@ def main():
     # product.ParsePage(query)
     #product.write_yaml_file('test.yaml')
     try:
-        product.read_yaml_file('test.yaml')
+        product.read_yaml_file('cache.yaml')
     except:
-        product.write_yaml_file('test.yaml')
+        product.write_yaml_file('cache.yaml')
         pass
     my_window = App("Plati.market Parser")
     my_window.create_window()

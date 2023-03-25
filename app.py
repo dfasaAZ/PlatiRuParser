@@ -10,7 +10,7 @@ class App:
         self.title = title
         self.window = None
         self.product=Products()
-        self.filePath="test.yaml"
+        self.filePath="cache.yaml"
         self.data = []
         self.order= 0
         self.table=None
