@@ -9,7 +9,8 @@ This app was created because plati.market lacks sorting in search results
 ## Screenshots
 <sub>results sorted by price</sub>
 
-![image](https://user-images.githubusercontent.com/49995905/221430161-873c2cab-8d8c-4b16-8722-c6b0cf61f690.png)
+![image](https://user-images.githubusercontent.com/49995905/227739462-e6fbb8c7-028e-4338-9d23-79d89291e242.png)
+
 
 ## Installation
 in console:pip install -r requirements.txt
